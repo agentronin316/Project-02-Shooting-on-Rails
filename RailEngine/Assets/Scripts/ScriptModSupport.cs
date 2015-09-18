@@ -172,21 +172,118 @@ public class ScriptModSupport : MonoBehaviour
                     }
                     else if (keywords[0].ToUpper() == "F")
                     {
-                        ScriptFacings tempFacing; 
+                        ScriptFacings tempFacing;
 
                         string[] words = keywords[1].Split(' ');
                         switch ((FacingTypes)System.Enum.Parse(typeof(FacingTypes), words[0].ToUpper()))
                         {
+                                //@ mike @ reference Marshall
                             case FacingTypes.LOOKAT:
+							case FacingTypes.LOOKCHAIN:
                                 //Look At waypoint spawning Code
-                                
+                                tempFacing = new ScriptFacings();
+							tempFacing.facingType = (FacingTypes)System.Enum.Parse(typeof(FacingTypes), words[0].ToUpper());
+							System.Collections.Generic.List<float> tempRotationSpeed = new System.Collections.Generic.List<float>(0);
+							System.Collections.Generic.List<float> tempLockTimes = new System.Collections.Generic.List<float>(0);
+							System.Collections.Generic.List<GameObject> tempTargets = new System.Collections.Generic.List<GameObject>(0);
+                                for (int i = 1; i < words.Length; i++ )
+                                {
+                                    if (i % 3 == 1)
+                                    {
+	                                    
+										tempRotationSpeed.Add (System.Convert.ToSingle(words[i]));
+	                                	
+									}
+                                    else if(i % 3 == 2)
+                                    {
+									    tempLockTimes.Add (System.Convert.ToSingle(words[i]));
+									}
+                                    else
+                                    {
+                                        coords = words[i].Split(',');
+                                        target = new Vector3(System.Convert.ToSingle(coords[0]),
+                                            System.Convert.ToSingle(coords[1]), System.Convert.ToSingle(coords[2]));
+                                        tempTargets.Add ((GameObject)Instantiate(movementWaypoint, target, Quaternion.identity));
+                                        
+                                    }                                   
+							}
+							tempFacing.rotationSpeed = new float[tempRotationSpeed.Count];
+							for (int i = 0; i < tempRotationSpeed.Count; i++)
+							{
+								tempFacing.rotationSpeed[i] = tempRotationSpeed[i];
+							}
+
+							tempFacing.lockTimes = new float[tempLockTimes.Count];
+							for (int i = 0; i < tempLockTimes.Count; i++)
+							{
+								tempFacing.lockTimes[i] = tempLockTimes[i];
+							}
+
+							tempFacing.targets = new GameObject[tempTargets.Count];
+							for (int i = 0; i < tempTargets.Count; i++)
+							{
+								tempFacing.targets[i] = tempTargets[i];
+							}
+                                tempFacings.Add(tempFacing);
                                 break;
-                            case FacingTypes.LOOKCHAIN:
+                            //case FacingTypes.LOOKCHAIN:
                                 //Look Chain waypoint spawning Code
-                                break;
+                              /*  tempFacing = new ScriptFacings();
+                                tempFacing.facingType = FacingTypes.LOOKAT;
+							System.Collections.Generic.List<float> tempRotationSpeed = new System.Collections.Generic.List<float>(0);
+							System.Collections.Generic.List<float> tempLockTimes = new System.Collections.Generic.List<float>(0);
+							System.Collections.Generic.List<GameObject> tempTargets = new System.Collections.Generic.List<GameObject>(0);
+                                for (int i = 1; i < words.Length; i++ )
+                                {
+                                    if (i % 3 == 1)
+                                    {
+	                                    
+										tempRotationSpeed.Add (System.Convert.ToSingle(words[i]));
+	                                	
+									}
+                                    else if(i % 3 == 2)
+                                    {
+									    tempLockTimes.Add (System.Convert.ToSingle(words[i]));
+									}
+                                    else
+                                    {
+                                        coords = words[i].Split(',');
+                                        target = new Vector3(System.Convert.ToSingle(coords[0]),
+                                            System.Convert.ToSingle(coords[1]), System.Convert.ToSingle(coords[2]));
+                                        tempTargets.Add ((GameObject)Instantiate(movementWaypoint, target, Quaternion.identity));
+                                        
+                                    }                                   
+							}
+							tempFacing.rotationSpeed = new float[tempRotationSpeed.Count];
+							for (int i = 0; i < tempRotationSpeed.Count; i++)
+							{
+								tempFacing.rotationSpeed[i] = tempRotationSpeed[i];
+							}
+
+							tempFacing.lockTimes = new float[tempLockTimes.Count];
+							for (int i = 0; i < tempLockTimes.Count; i++)
+							{
+								tempFacing.lockTimes[i] = tempLockTimes[i];
+							}
+
+							tempFacing.targets = new GameObject[tempTargets.Count];
+							for (int i = 0; i < tempTargets.Count; i++)
+							{
+								tempFacing.targets[i] = tempTargets[i];
+							}
+                                tempFacings.Add(tempFacing);
+                                break; */
                             case FacingTypes.WAIT:
                                 //Facing Wait waypoint spawning Code
+                                tempFacing = new ScriptFacings();
+                                tempFacing.facingType = FacingTypes.WAIT;
+                                tempFacing.facingTime = System.Convert.ToSingle(words[1]);
+                                tempFacings.Add(tempFacing);
                                 break;
+                            case FacingTypes.FREELOOK:
+                                //Free look for the camera
+                                break;
+                                //end @ mike
                         }
                     }
                     inputLine = reader.ReadLine();
@@ -201,7 +298,15 @@ public class ScriptModSupport : MonoBehaviour
                 {
                     player.effects[i] = tempEffects[i];
                 }
-            }
+                player.facings = new ScriptFacings[tempFacings.Count];
+				for (int i = 0; i < tempFacings.Count; i++)
+                {
+                    player.facings[i] = tempFacings[i];
+					Debug.Log ("add facing " + tempFacings[i].facingType);
+                }
+				Debug.Log ("last facing " + player.facings[player.facings.Length - 1]);
+				Debug.Log ("last facing list type " + tempFacings[tempFacings.Count - 1].facingType);
+			}
         }
     }
 }
