@@ -12,6 +12,8 @@ public class ScriptFacings
 
     //Loot at target variables
     public GameObject[] targets;
-    public float[] rotationSpeed;
-    public float[] lockTimes;
+	public float[] rotationSpeed;
+	public float[] lockTimes;
+
+    public float facingTime;
 }
